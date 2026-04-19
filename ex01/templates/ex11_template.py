@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 # -------------------------------------------------------
 
 
-def ground_truth_function(x: np.ndarray) -> np.ndarray:  # LUKA
+def ground_truth_function(x: np.ndarray) -> np.ndarray:  
     """
     TODO:
     Replace this placeholder with the ground truth function used in the lecture:
         h(x) = sin(2πx)
     """
-    return np.sin(2*np.pi*x)  # placeholder
+    return np.sin(2*np.pi*x) 
 
 
-def error_function(y_pred: np.ndarray, y_true: np.ndarray) -> float:  # LUKA
+def error_function(y_pred: np.ndarray, y_true: np.ndarray) -> float:  
     """
     TODO:
     Replace this placeholder with the non-regularized error function from the lecture.
@@ -99,7 +99,7 @@ def main():
     #    Compute the RMS training and test errors and reproduce
     #    the plot “Polynomial degree vs. train/test error”.
     #
-    def rms_error_function(y_pred, y_true):  # Luka
+    def rms_error_function(y_pred, y_true):  
         return np.sqrt(2 * error_function(y_pred, y_true) / len(y_pred))
 
     train_errors = []
