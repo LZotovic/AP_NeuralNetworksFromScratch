@@ -6,21 +6,15 @@ import matplotlib.pyplot as plt
 # -------------------------------------------------------
 
 
-def ground_truth_function(x: np.ndarray) -> np.ndarray:  
-    """
-    TODO:
-    Replace this placeholder with the ground truth function used in the lecture:
-        h(x) = sin(2πx)
-    """
-    return np.sin(2*np.pi*x) 
+# Ground truth function h(x) = sin(2πx) from the lecture
+# Used to generate the data(with added noise)
+def ground_truth_function(x: np.ndarray) -> np.ndarray:
+    return np.sin(2*np.pi*x)
 
 
-def error_function(y_pred: np.ndarray, y_true: np.ndarray) -> float:  
-    """
-    TODO:
-    Replace this placeholder with the non-regularized error function from the lecture.
-    Hint: start from the sum of squared errors and, later on, compute the RMS error.
-    """
+# Function that computes the RMS (Root Mean Square) error
+# Measures the average difference between predicted (y_pred) and true (y_true) values.
+def error_function(y_pred: np.ndarray, y_true: np.ndarray) -> float:
     N = len(y_pred)
     s = 0.0
     for i in range(N):
@@ -65,7 +59,13 @@ def main():
     y_test = ground_truth_function(
         x_test) + rng.normal(0.0, noise_amplitude, size=n_samples)
 
-    # Plot 1 – initial data (the ground truth is wrong until the TODOs are solved)
+    # Plot 1 – initial data
+    # Expected:
+    # The training data and test data should be close to the sine curve, since they are generated
+    # from the ground truth function with added noise.
+    # Observed:
+    # Both the training points and test points are near the sine curve
+    # The overall shape is visible, with small deviations due to the noise
     plot_model(x_train, y_train, x_test, y_test,
                model=None, save_fname='Initial_data.pdf')
 
@@ -81,6 +81,11 @@ def main():
     print(f"[deg={degree}] train_err={train_err:.6f}, test_err={test_err:.6f}")
 
     # Plot 2 – polynomial fit of degree 3
+    # Expected:
+    # Model should follow the general shape of the sine curve, without going through every training point
+    # Observed:
+    # The model follows the curve quite well, it doesn't pass through all training points and
+    # it's not overfitting, because it stays close to both training and test points
     plot_model(x_train, y_train, x_test, y_test,
                model=model_deg3, save_fname='Initial_fit.pdf')
 
@@ -92,6 +97,11 @@ def main():
     degree = 11
     model_deg11 = np.polynomial.Polynomial.fit(x_train, y_train, deg=degree)
     # Plot 3 - polynomial fit of degree 11
+    # Expected:
+    # Model would try to fit almost every training point, leading to a very wiggly curve
+    # Observed:
+    # Model is overfitting and wavy because it passes through the training points
+    # But it doesn't match the test points well
     plot_model(x_train, y_train, x_test, y_test,
                model=model_deg11, save_fname='Polynomial_fit_deg11.pdf')
 
@@ -99,7 +109,7 @@ def main():
     #    Compute the RMS training and test errors and reproduce
     #    the plot “Polynomial degree vs. train/test error”.
     #
-    def rms_error_function(y_pred, y_true):  
+    def rms_error_function(y_pred, y_true):
         return np.sqrt(2 * error_function(y_pred, y_true) / len(y_pred))
 
     train_errors = []
@@ -117,6 +127,15 @@ def main():
         print(
             f"[deg={degree}] train_err={train_err:.6f}, test_err={test_err:.6f}")
     # Plot 3 - Polynomial degree vs. train/test error
+    # Expected:
+    # Increasing the polynomial degree should lower the training error,
+    # as the model can fit the training data better
+    # A decrease in the testing error is expected, then with increase in polynomial degree
+    # it should increase again when the model starts overfitting
+    # Observed:
+    # Higher degree causes the training error to decrease
+    # It can be seen that small degrees underfit, and large degrees overfit, that is why
+    # firstly the test error decreases, but then increases again
     plt.plot(degrees, train_errors, label="Training error")
     plt.plot(degrees, test_errors, label="Testing error")
     plt.xlabel("Polynomial degree")
@@ -161,6 +180,13 @@ def main():
             f"[deg={degree}] train_err={train_err:.6f}, test_err={test_err:.6f}")
 
     # Plot 4 - Change of train and test error with the number of samples
+    # Expected:
+    # Model should overfit for small number of samples, the training error should be low and the test error higher
+    # Increasing the number of samples should make the model generalize better,
+    # and we expect a smaller difference between training and test error
+    # Observed:
+    # Overfitting can be observed for small datasets, as the training error is low while the test error is higher
+    # Both errors converge to a similar value as the number of samples increases => model generalizes better and overfits less
     plt.plot(n_samples, train_errors, label="Training error")
     plt.plot(n_samples, test_errors, label="Testing error")
     plt.xlabel("Number of samples")
@@ -173,8 +199,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# For small dataset sizes, the model strongly overfits, as indicated by a large gap between training and test error.
-# As the number of samples increases, the training error rises while the test error decreases slightly, and both converge to a similar value.
-# This shows that increasing the dataset size reduces overfitting and improves generalization.
-# For large sample sizes, both errors stabilize around the noise level.
