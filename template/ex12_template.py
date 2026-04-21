@@ -5,6 +5,8 @@ from matplotlib import animation
 # ---------------------------------------------------------
 # Data generation, same as in exercise 1.1
 # ---------------------------------------------------------
+# Ground truth function h(x) = sin(2πx) from the lecture
+# Used to generate the data(with added noise)
 def ground_truth_function(x: np.ndarray) -> np.ndarray:
     """
     TODO:
@@ -17,6 +19,10 @@ def ground_truth_function(x: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------
 # Model and loss functions
 # ---------------------------------------------------------
+
+# Polynomial model:
+# y = w0 + w1*x + w2*x^2 + ... + wM*x^M
+# Each weight controls one polynomial term.
 def poly_predict(x: np.ndarray, w: np.ndarray) -> np.ndarray:
     """
     TODO:
@@ -29,7 +35,9 @@ def poly_predict(x: np.ndarray, w: np.ndarray) -> np.ndarray:
 
     return y_pred
 
-
+# Computes the training loss:
+# L = 0.5 * mean((y_pred - y_true)^2)
+# Lower loss means predictions are closer to the target values.
 def mse_loss(y_pred: np.ndarray, y_true: np.ndarray) -> float:
     """
     TODO:
@@ -41,6 +49,9 @@ def mse_loss(y_pred: np.ndarray, y_true: np.ndarray) -> float:
 # ---------------------------------------------------------
 # SGD update step
 # ---------------------------------------------------------
+# Performs one SGD update step on one batch.
+# The weights are moved in the direction opposite to the gradient:
+# w = w - eta * grad
 def sgd_update(x_b: np.ndarray, y_b: np.ndarray, w: np.ndarray, eta: float) -> np.ndarray:
     """
     TODO:
@@ -64,6 +75,8 @@ def sgd_update(x_b: np.ndarray, y_b: np.ndarray, w: np.ndarray, eta: float) -> n
 # ---------------------------------------------------------
 # Training loops
 # ---------------------------------------------------------
+# Full-batch gradient descent:
+# uses the entire dataset for each update and records the loss per epoch.
 def train_fullbatch(x: np.ndarray, y: np.ndarray, degree: int, eta: float, n_epochs: int, seed: int = 0):
     """
     TODO:
@@ -86,7 +99,9 @@ def train_fullbatch(x: np.ndarray, y: np.ndarray, degree: int, eta: float, n_epo
 
     return w, losses
 
-
+# Mini-batch gradient descent:
+# shuffles the data each epoch, updates weights batch by batch,
+# and records the full training loss once per epoch.
 def train_minibatch(x: np.ndarray, y: np.ndarray, degree: int, eta: float, batch_size: int, n_epochs: int, seed: int = 0):
     """
     TODO:
@@ -121,6 +136,8 @@ def train_minibatch(x: np.ndarray, y: np.ndarray, degree: int, eta: float, batch
 
     return w, losses
 
+# Same as mini-batch training, but also stores copies of the weights
+# every few epochs for the training animation.
 def train_minibatch_snapshots(x: np.ndarray, y: np.ndarray, degree: int, eta: float, batch_size: int, n_epochs: int, seed: int = 0, snapshot_every: int = 10):
     """
     Similar to train_minibatch, but also collects and returns snapshots of w every 'snapshot_every' epochs.
@@ -197,10 +214,16 @@ def main():
     x = np.linspace(0.0, 1.0, N)
     y = ground_truth_function(x) + rng.normal(0.0, noise, size=N)
 
-    # Choose degree (from Part 1)
+    # Degree chosen from Part 1.
+    # Degree 5 gives a good balance between underfitting and overfitting.
     degree = 5  # TODO: adjust based on your Part 1 result
 
     # ---------- 1) Full-batch training ----------
+    # Expected:
+    # Smooth and stable convergence because all samples are used in each update.
+    # Observed:
+    # Loss decreases smoothly without oscillations.
+    # Convergence is stable but slower than for smaller batch sizes.
     # TODO: uncomment, choose a learning rate and train for 2000 epochs, then plot/save the loss curve
     eta_fb = 0.03  # this one will likely be too high, adjust as needed
     w_fb, losses_fb = train_fullbatch(x, y, degree, eta=eta_fb, n_epochs=2000)
@@ -214,6 +237,13 @@ def main():
 
     # ---------- 2) Learning-rate sweep (fixed batch=16) ----------
     # TODO: uncomment and select a few learning rates in [1e-4, 1] for 2000 epochs
+    # Learning-rate sweep
+    # Expected:
+    # Small learning rates converge slowly, while larger learning rates converge faster but may become unstable.
+    # Observed:
+    # Very small eta (1e-4, 1e-3) converges slowly.
+    # Medium eta (0.01, 0.03) converges faster.
+    # Larger eta (0.1) converges fastest and is still stable in this experiment.
     etas = [1e-4, 1e-3, 1e-2, 3e-2, 1e-1] # these may be too extreme, adjust as needed
     plt.figure()
     for eta in etas:
@@ -228,6 +258,13 @@ def main():
 
     # ---------- 3) Batch-size sweep (fixed learning rate) ----------
     # TODO: uncomment and select a few batch sizes in [1, N] for 2000 epochs
+    # Batch-size sweep
+    # Expected:
+    # Small batch sizes give noisy updates, large batch sizes give smoother updates.
+    # Observed:
+    # Small b (1) shows noisy but very fast convergence.
+    # Medium b (4, 16) gives a good balance between speed and stability.
+    # Large b (64, 200) converges more smoothly but more slowly.
     bs_list = [1, 4, 16, 64, N]
     eta_fixed = 0.03 # this one will likely be too high, adjust as needed
     plt.figure()
@@ -243,6 +280,12 @@ def main():
 
     # ---------- 4) Animation ----------
     # TODO: uncomment, choose good (eta, b), collect snapshots during training, and create a GIF
+    # Training animation
+    # Expected:
+    # The model starts from random weights and gradually adapts to the training data.
+    # Observed:
+    # The polynomial learns the overall sine shape.
+    # The fit is smooth but does not perfectly match the amplitude.
     eta_anim, b_anim = 0.03, 16
     epochs_anim, snap_every = 2000, 1
     _, _, snapshots = train_minibatch_snapshots(x, y, degree, eta=eta_anim, batch_size=b_anim, n_epochs=epochs_anim, snapshot_every=snap_every)
