@@ -35,13 +35,13 @@ def linear_init(key: jax.Array, in_features: int, out_features: int) -> LinearPa
     bias = random.normal(k_b, (out_features,)) * limit
     return LinearParams(weight=weight, bias=bias)
 
-
+# Forward pass: computes y = xW + b and stores input for backprop
 def linear_forward(params: LinearParams, x: jnp.ndarray) -> Tuple[jnp.ndarray, jnp.ndarray]:
     # TODO: Implement the forward pass
     output = x @ params.weight + params.bias
     return output, x # x as cache for backward
 
-
+# Backward pass: computes gradients (dW, db, dX) using chain rule
 def linear_backward(params: LinearParams, input: jnp.ndarray, grad_out: jnp.ndarray) -> Tuple[LinearGrads, jnp.ndarray]:
     # TODO: Implement the backward pass
     grad_input = grad_out @ params.weight.T
@@ -88,12 +88,13 @@ def verify_linear_grads():
 # ---------------------------------------------------------
 # Sigmoid activation
 # ---------------------------------------------------------
+# Forward pass: applies sigmoid activation σ(x) = 1 / (1 + e^-x)
 def sigmoid_forward(x: jnp.ndarray) -> jnp.ndarray:
     # TODO: Implement the forward pass
     output =  1 / (1 + jnp.exp(-x))
     return output
 
-
+# Backward pass: computes gradient using σ'(x) = σ(x)(1 - σ(x))
 def sigmoid_backward(out: jnp.ndarray, grad_out: jnp.ndarray) -> jnp.ndarray:
     # TODO: Implement the backward pass
     grad_input = grad_out * out * (1 - out)
@@ -123,6 +124,7 @@ def verify_sigmoid_grads():
 # ---------------------------------------------------------
 # Utilities for training
 # ---------------------------------------------------------
+# Computes stable softmax probabilities
 def Softmax(input: jnp.ndarray) -> jnp.ndarray:
     """Compute the row-wise softmax of the input logits."""
     # TODO: Implement the softmax function
