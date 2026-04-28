@@ -322,43 +322,50 @@ def main():
     verify_sigmoid_grads()
     verify_mlp_grads(train_loader)
 
-    # key = random.key(0)
-    # begin_time = time.time()
-    # model_params = mlp_init(key, [784, 512, 128, 10])
+    key = random.key(0)
+    begin_time = time.time()
+    model_params = mlp_init(key, [784, 512, 128, 10])
 
-    # train_losses = []
-    # test_losses = []
-    # test_accuracies = []
+    train_losses = []
+    test_losses = []
+    test_accuracies = []
 
-    # for epoch in range(1, args.epochs + 1):
-    #     train_loss, model_params = train_epoch(args, model_params, train_loader, epoch)
-    #     print(f'\nEpoch {epoch}: Training Loss={train_loss:.3f}')
+    for epoch in range(1, args.epochs + 1):
+        train_loss, model_params = train_epoch(args, model_params, train_loader, epoch)
+        print(f'\nEpoch {epoch}: Training Loss={train_loss:.3f}')
 
-    #     acc, test_loss = test_epoch(model_params, test_loader)
-    #     print(f'\nEpoch {epoch}: Test Loss={test_loss:.3f}, Test Accuracy = {acc:.2f}')
+        acc, test_loss = test_epoch(model_params, test_loader)
+        print(f'\nEpoch {epoch}: Test Loss={test_loss:.3f}, Test Accuracy = {acc:.2f}')
 
-    #     train_losses.append(float(train_loss))
-    #     test_losses.append(float(test_loss))
-    #     test_accuracies.append(float(acc))
+        train_losses.append(float(train_loss))
+        test_losses.append(float(test_loss))
+        test_accuracies.append(float(acc))
 
-    # total_time = time.time() - begin_time
-    # print(f'time: {total_time:.1f}s')
-    # epochs = range(1, args.epochs + 1)
+    total_time = time.time() - begin_time
+    print(f'time: {total_time:.1f}s')
+    epochs = range(1, args.epochs + 1)
 
-    # plt.figure()
-    # plt.plot(epochs, train_losses, label='Train Loss')
-    # plt.plot(epochs, test_losses, label='Test Loss')
-    # plt.xlabel('Epoch')
-    # plt.ylabel('Loss')
-    # plt.legend()
-    # plt.show()
+    #Loss plot:
+    #The training and test loss decrease over the epochs, which shows that the model is learning. 
+    #The test loss stays close to the training loss, so there is no strong overfitting.
 
-    # plt.figure()
-    # plt.plot(epochs, test_accuracies, label='Test Accuracy')
-    # plt.xlabel('Epoch')
-    # plt.ylabel('Accuracy (%)')
-    # plt.legend()
-    # plt.show()
+    plt.figure()
+    plt.plot(epochs, train_losses, label='Train Loss')
+    plt.plot(epochs, test_losses, label='Test Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
+
+    # Accuracy plot:
+    #The test accuracy increases quickly in the first epochs and then stabilizes around 98%, showing that the model improves and converges after training.
+
+    plt.figure()
+    plt.plot(epochs, test_accuracies, label='Test Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy (%)')
+    plt.legend()
+    plt.show()
 
     learning_rates = [1.0, 0.3, 0.1, 0.03, 0.001]
 
@@ -405,6 +412,9 @@ def main():
     for lr in learning_rates:
         plt.plot(epochs, all_test_losses[lr], label=f"lr={lr}")
 
+    #Test loss plot:
+    #The learning rate strongly affects convergence speed and final loss. Medium learning rates (0.1–0.3) achieve the lowest loss,
+    # while a very small learning rate (0.001) learns slowly and a very large one (1.0) is less stable.
     plt.xlabel("Epoch")
     plt.ylabel("Test Loss")
     plt.title("Test Loss for Different Learning Rates")
@@ -415,6 +425,9 @@ def main():
     for lr in learning_rates:
         plt.plot(epochs, all_test_accuracies[lr], label=f"lr={lr}")
 
+    #Test accuracy plot:
+    #Higher learning rates (0.1–0.3) reach high accuracy quickly, while a very small learning rate (0.001) improves slowly and achieves lower final accuracy.
+    #This shows that an appropriate learning rate is crucial for fast and effective training.
     plt.xlabel("Epoch")
     plt.ylabel("Test Accuracy (%)")
     plt.title("Test Accuracy for Different Learning Rates")
