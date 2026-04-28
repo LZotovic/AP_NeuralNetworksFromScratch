@@ -1,0 +1,87 @@
+[project]
+name = "exercises"
+version = "0.1.0"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+    "numpy",
+    "jax",
+    "tqdm",
+    "wandb",
+    "matplotlib",
+    "ruff",
+]
+
+[project.optional-dependencies]
+cpu = [
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+    "jax",
+]
+cuda = [
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+    "jax[cuda12]",
+    "cupy-cuda12x",
+]
+
+[tool.uv]
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "cuda" },
+    ],
+]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu128", extra = "cuda" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu128", extra = "cuda" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+
+
+[tool.ruff]
+# Project-specific excludes
+exclude = [
+    "*.ipynb",
+    ".ipynb_checkpoints"
+]
+
+# Match GitHub viewer width
+# line-length = 125
+# Or even more?
+line-length = 140
+
+# Assume Python 3.12
+target-version = "py312"
+
+[tool.ruff.lint]
+# E731 forces functions over lambdas, however lambdas are very usefull for the anneal_function
+ignore = ["E731"]
+
+
+[tool.ruff.lint.isort]
+# Use Ruff's built-in import sorter (replacement for isort)
+combine-as-imports = true
+force-single-line = false
+
+[tool.ruff.format]
+# Use Ruff's formatter (replacement for Black)
+quote-style = "single"  # Prefer single quotes for strings
+skip-magic-trailing-comma = true  # Ignore whatever trailing "," do  (actually this migth be something we want???)
